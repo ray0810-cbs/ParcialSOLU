@@ -2,12 +2,15 @@ package com.example.parcialdbp.service;
 
 import com.example.parcialdbp.clases.Rol;
 import com.example.parcialdbp.clases.User;
+import com.example.parcialdbp.dto.request.LoginRequestDTO;
 import com.example.parcialdbp.dto.request.UserRequestDTO;
+import com.example.parcialdbp.dto.response.LoginResponseDTO;
 import com.example.parcialdbp.dto.response.UserResponseDTO;
 import com.example.parcialdbp.repositorios.UserRepository;
 import com.example.parcialdbp.seguridad.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,19 +32,42 @@ public class AuthService {
             throw new UnknownError("Ese email ya está registrado");
         }
 
-        //Inicializar valores de estudiante con valores en DTO
+        //Inicializar valores de User con valores en DTO
         User user= User.builder()
                 .email(userRequestDTO.getEmail())
                 .password(passwordEncoder.encode(userRequestDTO.getPassword()))
                 .rol(Rol.ROLE_READER)
                 .build();
 
-        //Guardar estudiante en BD
+        //Guardar User en BD
         User saved = userRepository.save(user);
 
         UserResponseDTO respuesta =  modelMapper.map(saved, UserResponseDTO.class);
         return  respuesta;
     }
+
+    @Transactional
+    public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
+        String password = null;
+        String rol = null;
+        User user= userRepository.findByUsername(loginRequestDTO.getUsername()).orElse(null);
+        if (user != null){
+            password = user.getPassword();
+            rol= user.getRol().name();
+        } else{
+            throw new UnknownError("No hay usuario registrado con ese username");
+        }
+        //Chequea si la contraseña que ingresamos es valida para el usuario
+        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), password)){
+            //Cambiar luego error
+            throw new UnknownError("Contraseña incorrecta");
+        }
+        // Generar token
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getUsername());
+        String token = jwtService.generateToken(userDetails, rol);
+        return new LoginResponseDTO(token, jwtService.getExpirationTime());
+    }
+
 
 
 

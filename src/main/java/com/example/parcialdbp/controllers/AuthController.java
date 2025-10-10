@@ -1,6 +1,8 @@
 package com.example.parcialdbp.controllers;
 
+import com.example.parcialdbp.dto.request.LoginRequestDTO;
 import com.example.parcialdbp.dto.request.UserRequestDTO;
+import com.example.parcialdbp.dto.response.LoginResponseDTO;
 import com.example.parcialdbp.dto.response.UserResponseDTO;
 import com.example.parcialdbp.service.AuthService;
 import jakarta.validation.Valid;
