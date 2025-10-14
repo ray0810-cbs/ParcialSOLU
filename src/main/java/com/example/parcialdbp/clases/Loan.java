@@ -23,7 +23,7 @@ public class Loan {
 
     @OneToOne
     @JoinColumn(name="user_id")
-    private User user;
+    private UserClass user;
 
     @Column
     private LocalDate borrowDate = LocalDate.now();

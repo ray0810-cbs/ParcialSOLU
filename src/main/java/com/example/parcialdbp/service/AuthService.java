@@ -1,7 +1,7 @@
 package com.example.parcialdbp.service;
 
 import com.example.parcialdbp.clases.Rol;
-import com.example.parcialdbp.clases.User;
+import com.example.parcialdbp.clases.UserClass;
 import com.example.parcialdbp.dto.request.LoginRequestDTO;
 import com.example.parcialdbp.dto.request.UserRequestDTO;
 import com.example.parcialdbp.dto.response.LoginResponseDTO;
@@ -33,14 +33,14 @@ public class AuthService {
         }
 
         //Inicializar valores de User con valores en DTO
-        User user= User.builder()
+        UserClass user= UserClass.builder()
                 .email(userRequestDTO.getEmail())
                 .password(passwordEncoder.encode(userRequestDTO.getPassword()))
                 .rol(Rol.ROLE_READER)
                 .build();
 
         //Guardar User en BD
-        User saved = userRepository.save(user);
+        UserClass saved = userRepository.save(user);
 
         UserResponseDTO respuesta =  modelMapper.map(saved, UserResponseDTO.class);
         return  respuesta;
@@ -50,7 +50,7 @@ public class AuthService {
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         String password = null;
         String rol = null;
-        User user= userRepository.findByUsername(loginRequestDTO.getUsername()).orElse(null);
+        UserClass user= userRepository.findByUsername(loginRequestDTO.getUsername()).orElse(null);
         if (user != null){
             password = user.getPassword();
             rol= user.getRol().name();

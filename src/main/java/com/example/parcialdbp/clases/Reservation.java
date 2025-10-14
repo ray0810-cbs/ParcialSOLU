@@ -3,7 +3,6 @@ package com.example.parcialdbp.clases;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -24,7 +23,7 @@ public class Reservation {
 
     @OneToOne
     @JoinColumn(name="user_id")
-    private User user;
+    private UserClass user;
 
     @Column
     private ZonedDateTime reservedAt;
