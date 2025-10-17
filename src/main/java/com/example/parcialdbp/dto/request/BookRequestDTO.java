@@ -18,6 +18,6 @@ public class BookRequestDTO {
 
     private String isbn;
 
-    @Min(0)
+    @Min(value = 0,message = "El numero de copias debe ser mayor a 0")
     private int totalCopies;
 }

@@ -3,6 +3,9 @@ package com.example.parcialdbp.clases;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -30,8 +33,13 @@ public class Book {
     @Column
     private int availableCopies;
 
-    @OneToOne(mappedBy = "book")
-    private Loan loan;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Loan> loan = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Reservation> reservation = new ArrayList<>();
 
 
 }

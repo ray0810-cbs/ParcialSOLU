@@ -3,6 +3,9 @@ package com.example.parcialdbp.clases;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -28,8 +31,13 @@ public class UserClass {
     @Column(nullable = false)
     private Rol rol;
 
-    @OneToOne(mappedBy = "user")
-    private Loan loan;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Loan> loan = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Reservation> reservation = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

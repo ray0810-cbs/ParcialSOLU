@@ -43,9 +43,15 @@ public class AccionesService {
     }
 
     @Transactional(readOnly = true)
-    public BookPageResponseDTO listarLibros() {
-        //List<Book> books = bookRepository.findAll();
-        List<BookResponseDTO> bookResponseDTOs = bookRepository.findAll().stream()
+    public BookPageResponseDTO listarLibros(String status) {
+        bookRepository.findAll();
+        List<Book> books = switch (status.toLowerCase()) {
+            case "available" -> bookRepository.findByAvailableCopiesGreaterThan(0);
+            case "unavailable" -> bookRepository.findByAvailableCopiesEquals(0);
+            default -> bookRepository.findAll();
+        };
+
+        List<BookResponseDTO> bookResponseDTOs = books.stream()
                 .map(book -> modelMapper.map(book, BookResponseDTO.class))
                 .toList();
 

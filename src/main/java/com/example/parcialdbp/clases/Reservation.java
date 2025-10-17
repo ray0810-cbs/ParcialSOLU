@@ -17,19 +17,19 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name="book_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="book_id", nullable = false)
     private Book book;
 
-    @OneToOne
-    @JoinColumn(name="user_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="user_id", nullable = false)
     private UserClass user;
 
     @Column
     private ZonedDateTime reservedAt;
 
     @Column
-    private ZonedDateTime expiresAt =  reservedAt.plusHours(48);
+    private ZonedDateTime expiresAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,6 +39,12 @@ public class Reservation {
     public void prePersist() {
         if (this.status == null) {
             this.status = Status.PENDING;
+        }
+        if (this.reservedAt == null) {
+            this.reservedAt = ZonedDateTime.now();
+        }
+        if (this.expiresAt == null) {
+            this.expiresAt = this.reservedAt.plusHours(48);
         }
     }
 }

@@ -34,6 +34,7 @@ public class AuthService {
 
         //Inicializar valores de User con valores en DTO
         UserClass user= UserClass.builder()
+                .username(userRequestDTO.getUsername())
                 .email(userRequestDTO.getEmail())
                 .password(passwordEncoder.encode(userRequestDTO.getPassword()))
                 .rol(Rol.ROLE_READER)

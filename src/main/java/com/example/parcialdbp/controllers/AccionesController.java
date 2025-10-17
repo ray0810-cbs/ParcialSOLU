@@ -24,10 +24,12 @@ public class AccionesController {
     }
 
     @GetMapping("/books")
-    public ResponseEntity<BookPageResponseDTO> listar(@Valid @RequestBody BookRequestDTO requestDTO){
-        BookPageResponseDTO bookPageResponseDTO = accionesService.listarLibros();
-        return  ResponseEntity.status(HttpStatus.CREATED).body(bookPageResponseDTO);
+    public ResponseEntity<BookPageResponseDTO> listar(@RequestParam(defaultValue = "all") String status){
+        BookPageResponseDTO bookPageResponseDTO = accionesService.listarLibros(status);
+        return  ResponseEntity.status(HttpStatus.OK).body(bookPageResponseDTO);
     }
+
+
 
 
 }
