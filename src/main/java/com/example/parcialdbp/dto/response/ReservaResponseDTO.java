@@ -4,17 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoanResponseDTO {
+public class ReservaResponseDTO {
     private Long id;
     private Long bookId;
+    private String bookTitle;
     private Long userId;
-    private String borrowerName;
-    private LocalDate borrowDate;
-    private LocalDate dueDate;
+    private String userName;
+    private ZonedDateTime reservedAt;
+    private ZonedDateTime expiresAt;
     private String status;
 }

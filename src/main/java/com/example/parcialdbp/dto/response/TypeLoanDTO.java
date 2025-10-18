@@ -9,11 +9,11 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoanResponseDTO {
+public class TypeLoanDTO {
+    private String type;
     private Long id;
     private Long bookId;
-    private Long userId;
-    private String borrowerName;
+    private String bookTitle;
     private LocalDate borrowDate;
     private LocalDate dueDate;
     private String status;
