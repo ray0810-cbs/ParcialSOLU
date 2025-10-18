@@ -153,7 +153,7 @@ public class AccionesService {
                 .orElseThrow(() -> new BookNotFoundException("No se encontró el libro"));
 
         if (book.getAvailableCopies() > 0) {
-            throw new CopiesAvailableException("Hay ejemplares disponibles, no hay sentido hacer una reserva");
+            throw new CopiesAvailableException("Hay ejemplares disponibles. No hay sentido en hacer una reserva");
         }
 
         long reservasActivas = reservationRepository.findAll().stream()
@@ -258,12 +258,12 @@ public class AccionesService {
         }
 
         actividades.sort((a, b) -> {
-            ZonedDateTime fechaA = (a instanceof LoanResponseDTO l)
+            ZonedDateTime fechaA = (a instanceof TypeLoanDTO l)
                     ? l.getBorrowDate().atStartOfDay(ZoneId.systemDefault())
-                    : ((ReservaResponseDTO) a).getReservedAt();
-            ZonedDateTime fechaB = (b instanceof LoanResponseDTO l)
+                    : ((TypeReservationDTO) a).getReservedAt();
+            ZonedDateTime fechaB = (b instanceof TypeLoanDTO l)
                     ? l.getBorrowDate().atStartOfDay(ZoneId.systemDefault())
-                    : ((ReservaResponseDTO) b).getReservedAt();
+                    : ((TypeReservationDTO) b).getReservedAt();
             return fechaB.compareTo(fechaA); // orden descendente
         });
 

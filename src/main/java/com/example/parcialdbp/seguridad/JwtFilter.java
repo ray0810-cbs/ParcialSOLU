@@ -1,5 +1,6 @@
 package com.example.parcialdbp.seguridad;
 
+import com.example.parcialdbp.excepciones.InvalidCredentialsException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -55,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         } catch (JwtException e) {
-            throw new UnknownError("Token inválido o expirado");
+            throw new InvalidCredentialsException("Token inválido o expirado");
         }
 
         filterChain.doFilter(request, response);
