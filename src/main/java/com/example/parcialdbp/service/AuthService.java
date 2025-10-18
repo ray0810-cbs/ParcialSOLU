@@ -6,6 +6,9 @@ import com.example.parcialdbp.dto.request.LoginRequestDTO;
 import com.example.parcialdbp.dto.request.UserRequestDTO;
 import com.example.parcialdbp.dto.response.LoginResponseDTO;
 import com.example.parcialdbp.dto.response.UserResponseDTO;
+import com.example.parcialdbp.excepciones.InvalidCredentialsException;
+import com.example.parcialdbp.excepciones.UserAlreadyExistsException;
+import com.example.parcialdbp.excepciones.UserNotFoundException;
 import com.example.parcialdbp.repositorios.UserRepository;
 import com.example.parcialdbp.seguridad.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +32,7 @@ public class AuthService {
     public UserResponseDTO registrar(UserRequestDTO userRequestDTO) {
 
         if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
-            throw new UnknownError("Ese email ya está registrado");
+            throw new UserAlreadyExistsException("Usuario con "+userRequestDTO.getEmail()+" ya existe");
         }
 
         //Inicializar valores de User con valores en DTO
@@ -56,12 +59,12 @@ public class AuthService {
             password = user.getPassword();
             rol= user.getRol().name();
         } else{
-            throw new UnknownError("No hay usuario registrado con ese username");
+            throw new UserNotFoundException("Usuario con email "+loginRequestDTO.getUsername() + " no encontrado");
         }
         //Chequea si la contraseña que ingresamos es valida para el usuario
         if (!passwordEncoder.matches(loginRequestDTO.getPassword(), password)){
             //Cambiar luego error
-            throw new UnknownError("Contraseña incorrecta");
+            throw new InvalidCredentialsException("Contraseña incorrecta");
         }
         // Generar token
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getUsername());

@@ -5,6 +5,7 @@ import com.example.parcialdbp.dto.request.BookRequestDTO;
 import com.example.parcialdbp.dto.request.LoanRequestDTO;
 import com.example.parcialdbp.dto.request.ReservaRequestDTO;
 import com.example.parcialdbp.dto.response.*;
+import com.example.parcialdbp.excepciones.*;
 import com.example.parcialdbp.repositorios.BookRepository;
 import com.example.parcialdbp.repositorios.LoanRepository;
 import com.example.parcialdbp.repositorios.ReservationRepository;
@@ -36,7 +37,7 @@ public class AccionesService {
     @Transactional
     public BookResponseDTO crearLibro(BookRequestDTO bookRequestDTO) {
         if (bookRepository.existsByIsbn(bookRequestDTO.getIsbn())) {
-            throw new UnknownError("Ese libro ya está registrado");
+            throw new BookAlreadyExistsException("Libro ya existente");
         }
 
         Book book = Book.builder()
@@ -94,23 +95,21 @@ public class AccionesService {
     @Transactional
     public LoanResponseDTO crearPrestamo(String header, LoanRequestDTO loanRequestDTO){
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new UnknownError("Token no encontrado o inválido");
+            throw new InvalidCredentialsException("Token inválido");
         }
         String token = header.substring(7);
         String username = jwtService.extractUsername(token);
 
         UserClass user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UnknownError("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("No se encontró el usuario"));
 
         Book book = bookRepository.findById(loanRequestDTO.getBookId())
-                .orElseThrow(() -> new UnknownError("Libro no encontrado"));
+                .orElseThrow(() -> new BookNotFoundException("No se encontró el libro"));
 
-        if (book.getAvailableCopies() <= 0)
-            throw new UnknownError("No hay copias disponibles");
 
         boolean hasOverdue = loanRepository.existsByUserAndStatus(user, Status.OVERDUE);
         if (hasOverdue)
-            throw new UnknownError("Tienes préstamos vencidos");
+            throw new OverdueLoanException("Tienes préstamos vencidos");
 
         LocalDate borrowDate = loanRequestDTO.getBorrowDate() != null ? loanRequestDTO.getBorrowDate() : LocalDate.now();
         LocalDate dueDate = borrowDate.plusDays(14);
@@ -125,8 +124,9 @@ public class AccionesService {
 
         int disponibles = book.getAvailableCopies();
         if (disponibles <= 0) {
-            throw new UnknownError("No hay ejemplares disponibles");
+            throw new NoCopiesAvailableException("No hay copias disponibles");
         }
+
         book.setAvailableCopies(disponibles - 1);
 
         Loan saved = loanRepository.save(loan);
@@ -141,19 +141,19 @@ public class AccionesService {
     @Transactional
     public ReservaResponseDTO crearReserva(String header, ReservaRequestDTO reservaRequestDTO){
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new UnknownError("Token no encontrado o inválido");
+            throw new InvalidCredentialsException("Token inválido");
         }
         String token = header.substring(7);
         String username = jwtService.extractUsername(token);
 
         UserClass user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UnknownError("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("No se encontró el usuario"));
 
         Book book = bookRepository.findById(reservaRequestDTO.getBookId())
-                .orElseThrow(() -> new UnknownError("Libro no encontrado"));
+                .orElseThrow(() -> new BookNotFoundException("No se encontró el libro"));
 
         if (book.getAvailableCopies() > 0) {
-            throw new UnknownError("Hay ejemplares disponibles, no hay sentido en hacer una reserva");
+            throw new CopiesAvailableException("Hay ejemplares disponibles, no hay sentido hacer una reserva");
         }
 
         long reservasActivas = reservationRepository.findAll().stream()
@@ -162,7 +162,7 @@ public class AccionesService {
                 .count();
 
         if (reservasActivas >= 3) {
-            throw new RuntimeException("No puedes tener más de 3 reservas activas");
+            throw new ReservationExceedsException("No puedes tener más de 3 reservas activas");
         }
 
         Reservation reservation = Reservation.builder()
@@ -186,13 +186,14 @@ public class AccionesService {
     public ActivityResponseDTO miActividad(String header, String type, int page, int size) {
 
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new UnknownError("Token no encontrado o inválido");
+            throw new InvalidCredentialsException("Token inválido");
         }
+
         String token = header.substring(7);
         String username = jwtService.extractUsername(token);
 
         UserClass user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("No se encontró el usuario"));
 
 
         List<Object> actividades = new ArrayList<>();
